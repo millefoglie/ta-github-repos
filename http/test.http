@@ -1,0 +1,14 @@
+GET localhost:8080/v1/users/millefoglie/repos
+Accept: application/json
+
+###
+GET localhost:8080/v1/users/millefoglie/repos12321312
+Accept: application/json
+
+###
+GET localhost:8080/v1/users/millefoglie0123123123123123/repos
+Accept: application/json
+
+###
+GET localhost:8080/v1/users/millefoglie/repos
+Accept: application/xml

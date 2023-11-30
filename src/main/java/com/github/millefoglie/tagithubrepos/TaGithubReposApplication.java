@@ -3,7 +3,9 @@ package com.github.millefoglie.tagithubrepos;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.github.millefoglie.tagithubrepos"
+})
 public class TaGithubReposApplication {
 
     public static void main(String[] args) {
