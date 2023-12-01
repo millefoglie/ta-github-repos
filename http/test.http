@@ -1,14 +1,15 @@
+### Happy path
 GET localhost:8080/v1/users/millefoglie/repos
 Accept: application/json
 
-###
+### Fail with 404 from the API
 GET localhost:8080/v1/users/millefoglie/repos12321312
 Accept: application/json
 
-###
+### Fail with 404 from Github
 GET localhost:8080/v1/users/millefoglie0123123123123123/repos
 Accept: application/json
 
-###
+### Fail with 406 from the API
 GET localhost:8080/v1/users/millefoglie/repos
 Accept: application/xml

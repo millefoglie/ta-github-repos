@@ -1,0 +1,3 @@
+app:
+  github:
+    base-url: "http://localhost:17001/"

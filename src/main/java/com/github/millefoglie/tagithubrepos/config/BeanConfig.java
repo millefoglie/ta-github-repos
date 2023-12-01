@@ -1,6 +1,7 @@
 package com.github.millefoglie.tagithubrepos.config;
 
 import com.github.millefoglie.tagithubrepos.client.GithubClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -12,10 +13,10 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 public class BeanConfig {
 
     @Bean
-    GithubClient githubClient() {
+    GithubClient githubClient(@Value("${app.github.base-url}") String baseUrl) {
         var client = WebClient
                 .builder()
-                .baseUrl("https://api.github.com/")
+                .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.ACCEPT, "application/vnd.github+json")
                 .defaultHeader("X-GitHub-Api-Version", "2022-11-28")
                 .build();

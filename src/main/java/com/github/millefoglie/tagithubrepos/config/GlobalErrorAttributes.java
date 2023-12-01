@@ -14,7 +14,7 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     @Override
     public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
         var defaultErrorAttributes = super.getErrorAttributes(request, options);
-        var status = defaultErrorAttributes.getOrDefault("status", HttpStatus.INTERNAL_SERVER_ERROR);
+        var status = defaultErrorAttributes.getOrDefault("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         var message = defaultErrorAttributes.getOrDefault("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 
         return Map.of(
