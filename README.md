@@ -1,7 +1,7 @@
 # TA GitHub Repos
 
 This is a sample Spring Webflux app that demonstrates an API for querying
-some data from Github, namely all public repositories of some user. The responses
+some data from GitHub, namely all public repositories of some user. The responses
 thus contain
 - a repository name
 - a repository owner login
@@ -31,6 +31,8 @@ error handling.
 
 3. Wiremock seems to be broken with the latest version of Spring. So, as a workaround
 a standalone version of Wiremock has to be used.
+
+4. See `http/test.http` for sample API calls.
 
 ## Build
 

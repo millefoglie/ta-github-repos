@@ -53,7 +53,7 @@ public class RepositoryApiTest {
     private WebTestClient webTestClient;
 
     @Test
-    void failWith404onUnkownUsername() {
+    void failWith404onUnknownUsername() {
         wiremock.stubFor(
                 get("/users/unknown/repos")
                         .willReturn(aResponse().withStatus(404)).atPriority(1)
