@@ -20,23 +20,16 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(NotFoundException.class)
     public Mono<ResponseEntity<?>> handleNotFoundException(NotFoundException e) {
-        var status = HttpStatus.NOT_FOUND.value();
-        var message = e.getMessage();
-
-        var errorPropertiesMap = Map.of(
-                "status", status,
-                "Message", message
-        );
-
-        return Mono.just(ResponseEntity.status(status)
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .body(errorPropertiesMap));
+        return handleException(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler(GithubException.class)
     public Mono<ResponseEntity<?>> handleGithubException(GithubException e) {
-        var status = HttpStatus.INTERNAL_SERVER_ERROR.value();
-        var message = e.getMessage();
+        return handleException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+    private Mono<ResponseEntity<?>> handleException(HttpStatus httpStatus, String message) {
+        var status = httpStatus.value();
 
         var errorPropertiesMap = Map.of(
                 "status", status,

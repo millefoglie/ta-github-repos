@@ -11,7 +11,7 @@ paths:
     get:
       tags:
         - Repository
-      summary: Get user's repos
+      summary: Get all public user's repos
       description: Gets extended data on all public repositories of a given user.
       operationId: getAllPublicRepos
       parameters:
@@ -23,11 +23,11 @@ paths:
             example: 'millefoglie'
       responses:
         200:
-          description: Repositories list
+          description: Repository list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RepositoriesData'
+                $ref: '#/components/schemas/GetAllPublicReposResponse'
         400:
           $ref: '#/x-responses/BadRequest'
         404:
@@ -54,10 +54,10 @@ components:
       required:
         - status
         - Message
-    RepositoriesData:
+    GetAllPublicReposResponse:
       description: |
-        Extended repositories data containing a list of all public repositories of a user,
-        their branches and last commit SHA in each of them.
+        A list wrapper containing all public repositories of a user,
+        their branches and last commit SHA.
       type: object
       properties:
         repos:
@@ -68,9 +68,11 @@ components:
               name:
                 type: string
                 description: A repository name.
+                example: 'sample-repo'
               owner:
                 type: string
                 description: An owner's login.
+                example: 'millefoglie'
               branches:
                 type: array
                 items:
@@ -79,9 +81,11 @@ components:
                     name:
                       type: string
                       description: A branch name.
+                      example: 'master'
                     lastCommitSha:
                       type: string
                       description: A last commit SHA.
+                      example: '1893e8b7866accb5a2d4f1d3920b9e366ee2b73a'
 x-responses:
   BadRequest:
     description: Validation exception or rule violation

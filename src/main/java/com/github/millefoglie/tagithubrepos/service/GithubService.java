@@ -4,7 +4,7 @@ import com.github.millefoglie.tagithubrepos.client.GithubClient;
 import com.github.millefoglie.tagithubrepos.exception.GithubException;
 import com.github.millefoglie.tagithubrepos.exception.NotFoundException;
 import com.github.millefoglie.tagithubrepos.mapper.GithubMapper;
-import com.github.millefoglie.tagithubrepos.model.RepositoriesData;
+import com.github.millefoglie.tagithubrepos.model.GetAllPublicReposResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -24,8 +24,8 @@ public class GithubService {
     private final GithubClient githubClient;
     private final GithubMapper githubMapper;
 
-    public Mono<RepositoriesData> getAllPublicRepos(String username) {
-        var nonForkRepos = githubClient
+    public Mono<GetAllPublicReposResponse> getAllPublicRepos(String username) {
+        var nonForkRepoFlux = githubClient
                 .getAllPublicRepos(username)
                 .flatMapMany(Flux::fromIterable)
                 .filter(it -> !it.isFork())
@@ -37,33 +37,41 @@ public class GithubService {
                     return e;
                 });
 
-        var repoBranches = nonForkRepos
-                .flatMap(repo -> {
-                             var matcher = OPTIONAL_PATH_FRAGMENT.matcher(repo.getBranchesUrl());
-                             var branchesUrl = matcher.replaceAll("");
+        var repoBranchesFlux = nonForkRepoFlux
+                .flatMapSequential(repo -> {
 
-                             return githubClient
-                                     .getRepoBranches(
-                                             UriComponentsBuilder.fromHttpUrl(branchesUrl).encode().build().toUri()
-                                     )
-                                     .onErrorMap(WebClientResponseException.class, e -> {
-                                         if (e.getStatusCode() == HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value())) {
-                                             return new NotFoundException("No " + username + "/" + repo.getName() + " repository found: " + e.getResponseBodyAsString());
-                                         }
+                    // Strip {/branch} optional segment from the url
+                    // For some reason UriComponentBuilder does not cover this case
+                    var matcher = OPTIONAL_PATH_FRAGMENT.matcher(repo.getBranchesUrl());
+                    var branchesUrl = matcher.replaceAll("");
 
-                                         return e;
-                                     });
-                         }
+                    return githubClient
+                            .getRepoBranches(
+                                    UriComponentsBuilder.fromHttpUrl(branchesUrl).encode().build().toUri()
+                            )
+                            .onErrorMap(WebClientResponseException.class, e -> {
+                                if (e.getStatusCode() == HttpStatusCode.valueOf(HttpStatus.NOT_FOUND.value())) {
+                                    return new NotFoundException(
+                                            "No " + username + "/" + repo.getName() + " repository found: " + e.getResponseBodyAsString());
+                                }
+
+                                return e;
+                            });
+                });
+
+        // Note: branches must be mapped sequentially for this zip to work correctly
+        return nonForkRepoFlux
+                .zipWith(repoBranchesFlux)
+                .map(repoAndBranches -> {
+                    var repo = githubMapper.toApiModel(repoAndBranches.getT1());
+                    var branches = repoAndBranches.getT2().stream().map(githubMapper::toApiModel).toList();
+                    return repo.branches(branches);
+                })
+                .collectList()
+                .map(it -> new GetAllPublicReposResponse().repos(it))
+                .onErrorMap(
+                        WebClientResponseException.class,
+                        e -> new GithubException("Could not fetch data from GitHub: " + e.getResponseBodyAsString())
                 );
-
-    return nonForkRepos.zipWith(repoBranches)
-                       .map(repoAndBranches -> {
-                           var repo = githubMapper.toApiModel(repoAndBranches.getT1());
-                           var branches = repoAndBranches.getT2().stream().map(githubMapper::toApiModel).toList();
-                           return repo.branches(branches);
-                       })
-                       .collectList()
-                       .map(it -> new RepositoriesData().repos(it))
-            .onErrorMap(WebClientResponseException.class, e -> new GithubException("Could not fetch data from GitHub: " + e.getResponseBodyAsString()));
     }
 }

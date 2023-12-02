@@ -1,6 +1,6 @@
 package com.github.millefoglie.tagithubrepos.api;
 
-import com.github.millefoglie.tagithubrepos.model.RepositoriesData;
+import com.github.millefoglie.tagithubrepos.model.GetAllPublicReposResponse;
 import com.github.millefoglie.tagithubrepos.service.GithubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ public class DefaultRepositoryApiDelegate implements RepositoryApiDelegate {
     private final GithubService githubService;
 
     @Override
-    public Mono<ResponseEntity<RepositoriesData>> getAllPublicRepos(String username, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<GetAllPublicReposResponse>> getAllPublicRepos(String username, ServerWebExchange exchange) {
         return githubService
                 .getAllPublicRepos(username)
                 .map(ResponseEntity::ok);

@@ -14,6 +14,8 @@ public interface GithubClient {
     @GetExchange("/users/{username}/repos")
     Mono<List<GithubRepositoryResponse>> getAllPublicRepos(@PathVariable("username") String username);
 
+    // Note that branchesUri comes in repos responses
+    // Technically, we could specify a path instead
     @GetExchange
     Mono<List<GithubBranchResponse>> getRepoBranches(URI branchesUri);
 }
